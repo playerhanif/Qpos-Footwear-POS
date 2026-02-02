@@ -1,0 +1,6 @@
+﻿src/components/ProductDetailModal.tsx(61,11): error TS6133: 'stockStatus' is declared but its value is never read.
+src/components/StockAdjustmentModal.tsx(3,19): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/components/StockAdjustmentModal.tsx(8,24): error TS6196: 'ProductVariant' is declared but never used.
+src/contexts/ProductContext.tsx(1,32): error TS6133: 'useContext' is declared but its value is never read.
+src/screens/InventoryScreen.tsx(10,1): error TS6192: All imports in import declaration are unused.
+src/utils/mockData.ts(1,41): error TS6196: 'StockStatus' is declared but never used.

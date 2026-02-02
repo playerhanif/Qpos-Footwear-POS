@@ -1,0 +1,106 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { CartItem, Product, ProductVariant } from '../types';
+
+interface CartState {
+    items: CartItem[];
+    addToCart: (product: Product, variant: ProductVariant, quantity: number) => void;
+    removeFromCart: (itemId: string) => void;
+    updateQuantity: (itemId: string, quantity: number) => void;
+    clearCart: () => void;
+    setCustomer: (customerId: number | undefined) => void;
+    customerId?: number;
+
+    // Computed values helpers
+    getSubtotal: () => number;
+    getTotalItems: () => number;
+}
+
+export const useCartStore = create<CartState>()(
+    persist(
+        (set, get) => ({
+            items: [],
+            customerId: undefined,
+
+            setCustomer: (id) => set({ customerId: id }),
+
+            addToCart: (product, variant, quantity) => {
+                set((state) => {
+                    // Check if item already exists with same variant
+                    const existingItemIndex = state.items.findIndex(
+                        (item) => item.variantId === variant.id
+                    );
+
+                    if (existingItemIndex > -1) {
+                        // Update quantity if exists
+                        const newItems = [...state.items];
+                        newItems[existingItemIndex].quantity += quantity;
+                        newItems[existingItemIndex].totalPrice =
+                            newItems[existingItemIndex].quantity * newItems[existingItemIndex].unitPrice;
+                        return { items: newItems };
+                    }
+
+                    // Add new item
+                    const newItem: CartItem = {
+                        id: `${variant.id}-${Date.now()}`, // Simple unique ID
+                        variantId: variant.id,
+                        productId: product.id,
+                        productName: product.name,
+                        imageUrl: product.imageUrl,
+                        sizeUk: variant.sizeUk,
+                        color: variant.color,
+                        quantity,
+                        unitPrice: product.basePrice + (variant.priceAdjustment || 0),
+                        discountAmount: 0,
+                        taxAmount: 0, // Calculate later
+                        totalPrice: (product.basePrice + (variant.priceAdjustment || 0)) * quantity,
+                    };
+
+                    return { items: [...state.items, newItem] };
+                });
+            },
+
+            removeFromCart: (itemId) => {
+                set((state) => ({
+                    items: state.items.filter((item) => item.id !== itemId),
+                }));
+            },
+
+            updateQuantity: (itemId, quantity) => {
+                set((state) => {
+                    if (quantity <= 0) {
+                        return {
+                            items: state.items.filter((item) => item.id !== itemId),
+                        };
+                    }
+
+                    const newItems = state.items.map((item) => {
+                        if (item.id === itemId) {
+                            return {
+                                ...item,
+                                quantity,
+                                totalPrice: item.unitPrice * quantity,
+                            };
+                        }
+                        return item;
+                    });
+
+                    return { items: newItems };
+                });
+            },
+
+            clearCart: () => set({ items: [] }),
+
+            getSubtotal: () => {
+                return get().items.reduce((total, item) => total + item.totalPrice, 0);
+            },
+
+            getTotalItems: () => {
+                return get().items.reduce((total, item) => total + item.quantity, 0);
+            },
+        }),
+        {
+            name: 'qpos-cart-storage',
+        }
+    )
+);

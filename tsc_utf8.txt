@@ -1,0 +1,21 @@
+﻿src/components/CustomerFormModal.tsx(3,50): error TS6133: 'FileText' is declared but its value is never read.
+src/components/ProductDetailModal.tsx(61,11): error TS6133: 'stockStatus' is declared but its value is never read.
+src/components/ProtectedRoute.tsx(4,15): error TS2459: Module '"../contexts/AuthContext"' declares 'UserRole' locally, but it is not exported.
+src/components/Receipt.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/StockAdjustmentModal.tsx(3,19): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/components/StockAdjustmentModal.tsx(8,24): error TS6196: 'ProductVariant' is declared but never used.
+src/components/UserFormModal.tsx(45,21): error TS2345: Argument of type '{ name: string; pin: string; role: UserRole; }' is not assignable to parameter of type 'Omit<User, "id">'.
+  Property 'isActive' is missing in type '{ name: string; pin: string; role: UserRole; }' but required in type 'Omit<User, "id">'.
+src/contexts/AuthContext.tsx(2,21): error TS6196: 'UserRole' is declared but never used.
+src/contexts/AuthContext.tsx(18,5): error TS2741: Property 'isActive' is missing in type '{ id: string; name: string; role: "ADMIN"; pin: string; }' but required in type 'User'.
+src/contexts/AuthContext.tsx(19,5): error TS2741: Property 'isActive' is missing in type '{ id: string; name: string; role: "CASHIER"; pin: string; }' but required in type 'User'.
+src/contexts/ProductContext.tsx(1,32): error TS6133: 'useContext' is declared but its value is never read.
+src/screens/BillingScreen.tsx(1,36): error TS6133: 'useEffect' is declared but its value is never read.
+src/screens/InventoryScreen.tsx(15,60): error TS2304: Cannot find name 'Product'.
+src/screens/InventoryScreen.tsx(17,64): error TS2304: Cannot find name 'Product'.
+src/screens/InventoryScreen.tsx(19,68): error TS2304: Cannot find name 'Product'.
+src/screens/InventoryScreen.tsx(22,41): error TS2304: Cannot find name 'Product'.
+src/screens/InventoryScreen.tsx(27,41): error TS2304: Cannot find name 'Product'.
+src/screens/PaymentScreen.tsx(75,58): error TS6133: 'index' is declared but its value is never read.
+src/screens/PaymentScreen.tsx(97,15): error TS2741: Property 'id' is missing in type '{ orderNumber: string; customerId: number | undefined; cashierId: number; orderDate: string; subtotal: number; discountAmount: number; taxAmount: number; totalAmount: number; paymentStatus: "paid"; items: OrderItem[]; payments: Payment[]; }' but required in type 'Order'.
+src/utils/mockData.ts(1,41): error TS6196: 'StockStatus' is declared but never used.
