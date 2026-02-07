@@ -124,8 +124,8 @@ export const LoginScreen: React.FC = () => {
                     </button>
 
                     <div className="mt-6 text-xs text-gray-400 text-center">
-                        <p>Default PINs:</p>
-                        <p>Admin: 1234 • Cashier: 0000</p>
+                        <p><a href="https://aunsys.in">aunsys.in</a></p>
+                        <p>By AIST All rights reserved</p>
                     </div>
                 </div>
             </motion.div>

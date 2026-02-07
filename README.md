@@ -1,73 +1,90 @@
-# React + TypeScript + Vite
+# Qpos - Premium Footwear POS System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Qpos is a modern, high-performance, and mobile-optimized Point of Sale (POS) system specifically designed for footwear retail stores. Built with React, TypeScript, and Vite, it offers a seamless, offline-first experience using IndexedDB for data persistence.
 
-Currently, two official plugins are available:
+![Qpos Dashboard](https://raw.githubusercontent.com/playerhanif/Qpos-Footwear-POS/main/public/logo-192.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+### 🛒 Billing & Sales
+- **Modern POS Interface**: Fast and intuitive billing screen with category filtering and real-time cart management.
+- **Mobile Optimized**: Fully responsive design with mobile-specific navigation and cart toggles.
+- **Order Management**: Generate professional receipts (printable via `react-to-print`).
+- **Payment Options**: Support for multiple payment methods including Cash, Card, UPI, and Split Payments.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 📦 Inventory Management
+- **Universal Product View**: Grid and list views for efficient product browsing.
+- **Variant Support**: Manage footwear variants by size (UK/US/EU) and color.
+- **Stock Tracking**: Real-time stock level monitoring with low-stock alerts.
+- **Stock Logs**: Detailed history of stock adjustments (sales, restocks, returns).
 
-## Expanding the ESLint configuration
+### 👥 CRM (Customer Relationship Management)
+- **Customer Profiles**: Record customer contact details and purchase history.
+- **Loyalty Points**: Track and manage customer loyalty based on spending.
+- **Visit Tracking**: Automatic recording of customer visits and total spending.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🔐 User & Security
+- **Role-Based Access**: Specialized views for Administrators and Cashiers.
+- **Secure Login**: PIN-based secure authentication system.
+- **User Management**: Admin tools to add, edit, or deactivate staff accounts.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 📱 PWA (Progressive Web App)
+- **Installable**: Install Qpos on your Desktop or Mobile home screen for a native experience.
+- **Offline First**: Works without an internet connection using IndexedDB (Dexie.js).
+- **Fast Performance**: Assets are cached via Service Workers for near-instant load times.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠 Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Framework**: [React 19](https://react.dev/)
+- **Build Tool**: [Vite 7](https://vite.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Icons**: [Material UI Icons](https://mui.com/material-ui/material-icons/) (for specific dashboard elements)
+
+## 🚀 Getting Started
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- npm or yarn
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/playerhanif/Qpos-Footwear-POS.git
+   cd Qpos-Footwear-POS
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
+
+### Building for Production
+```bash
+npm run build
 ```
+The output will be in the `dist/` directory, ready for status hosting.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🌐 Deployment
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Netlify / Vercel
+Qpos is ready for one-click deployment to platforms like Netlify or Vercel:
+- **Build Command**: `npm run build`
+- **Publish Directory**: `dist`
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### PWA Configuration
+The PWA manifest and service worker are automatically generated by `vite-plugin-pwa`. Ensure you provide custom icons in `public/` for a fully branded experience.
+
+## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+Built with ❤️ for modern retail.
