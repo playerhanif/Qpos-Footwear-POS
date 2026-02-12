@@ -127,21 +127,19 @@ export const PaymentScreen: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Hidden Receipt for Printing */}
-            <div style={{ display: "none" }}>
-                <div style={{ display: "block" }}>
-                    <Receipt
-                        ref={receiptRef}
-                        orderId={orderId}
-                        items={items}
-                        subtotal={subtotal}
-                        taxAmount={taxAmount}
-                        totalAmount={totalAmount}
-                        paymentMethod={selectedMethod || 'Unknown'}
-                        amountTendered={selectedMethod === 'cash' ? tenderedValue : undefined}
-                        changeAmount={selectedMethod === 'cash' ? changeAmount : undefined}
-                        date={new Date().toISOString()}
-                    />
-                </div>
+            <div className="hidden">
+                <Receipt
+                    ref={receiptRef}
+                    orderId={orderId}
+                    items={items}
+                    subtotal={subtotal}
+                    taxAmount={taxAmount}
+                    totalAmount={totalAmount}
+                    paymentMethod={selectedMethod || 'Unknown'}
+                    amountTendered={selectedMethod === 'cash' ? tenderedValue : undefined}
+                    changeAmount={selectedMethod === 'cash' ? changeAmount : undefined}
+                    date={new Date().toISOString()}
+                />
             </div>
 
             {/* Header */}
