@@ -4,7 +4,7 @@ import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { useSettingsStore } from '../store/settingsStore';
-import { useSalesStore } from '../store/salesStore';
+import { useSales } from '../hooks/useSales';
 import { useCartStore } from '../store/cartStore';
 
 export const SettingsScreen: React.FC = () => {
@@ -13,7 +13,7 @@ export const SettingsScreen: React.FC = () => {
         updateSettings, resetSettings
     } = useSettingsStore();
 
-    const { clearHistory } = useSalesStore();
+    const { clearHistory } = useSales();
     const { clearCart } = useCartStore();
 
     // Local state for form to avoid excessive re-renders/writes

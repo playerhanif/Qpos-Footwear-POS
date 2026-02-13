@@ -10,8 +10,10 @@ interface ReceiptProps {
     taxAmount: number;
     totalAmount: number;
     paymentMethod: string;
+    payments?: { method: string; amount: number }[];
     amountTendered?: number;
     changeAmount?: number;
+    discountAmount?: number;
     date: string;
 }
 
@@ -22,8 +24,10 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
     taxAmount,
     totalAmount,
     paymentMethod,
+    payments,
     amountTendered,
     changeAmount,
+    discountAmount,
     date,
 }, ref) => {
     const { storeName, storeAddress, storePhone } = useSettingsStore();
@@ -42,7 +46,7 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
 
             {/* Container with minimal padding to maximize print area */}
             <div className="p-1">
-                
+
                 {/* Header */}
                 <div className="text-center mb-2">
                     <h1 className="text-base font-bold uppercase leading-none mb-1">{storeName}</h1>
@@ -69,7 +73,7 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
                             <span className="font-bold text-[11px] leading-3 mb-0.5 break-words">
                                 {item.productName}
                             </span>
-                            
+
                             {/* Details Row */}
                             <div className="flex justify-between pl-1 text-[10px]">
                                 <span>
@@ -89,6 +93,12 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
                         <span>Subtotal</span>
                         <span>{formatCurrency(subtotal)}</span>
                     </div>
+                    {discountAmount && discountAmount > 0 && (
+                        <div className="flex justify-between">
+                            <span>Discount</span>
+                            <span>-{formatCurrency(discountAmount)}</span>
+                        </div>
+                    )}
                     <div className="flex justify-between text-[10px]">
                         <span>Tax (18%)</span>
                         <span>{formatCurrency(taxAmount)}</span>
@@ -103,10 +113,23 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
 
                 {/* Payment Details */}
                 <div className="space-y-0.5 text-[10px]">
-                    <div className="flex justify-between">
-                        <span>Pay Mode</span>
-                        <span className="capitalize font-semibold">{paymentMethod}</span>
-                    </div>
+                    {payments && payments.length > 0 ? (
+                        <>
+                            <div className="font-semibold mb-1">Payment Methods:</div>
+                            {payments.map((p, i) => (
+                                <div key={i} className="flex justify-between">
+                                    <span className="capitalize">{p.method}</span>
+                                    <span>{formatCurrency(p.amount)}</span>
+                                </div>
+                            ))}
+                        </>
+                    ) : (
+                        <div className="flex justify-between">
+                            <span>Pay Mode</span>
+                            <span className="capitalize font-semibold">{paymentMethod}</span>
+                        </div>
+                    )}
+
                     {amountTendered !== undefined && (
                         <div className="flex justify-between">
                             <span>Tendered</span>
@@ -129,7 +152,7 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
                     <p>www.qpos.store</p>
                 </div>
             </div>
-            
+
             {/* Bottom padding to ensure the cutter doesn't cut the text */}
             <div className="h-4 print:h-2" />
         </div>

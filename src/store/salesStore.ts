@@ -18,6 +18,7 @@ interface SalesState {
     orders: Order[];
     addOrder: (order: Order) => void;
     clearHistory: () => void;
+    clearTodayOrders: () => void;
 
     // Analytics Helpers
     getDailyRevenue: (date?: string) => number;
@@ -37,6 +38,13 @@ export const useSalesStore = create<SalesState>()(
             },
 
             clearHistory: () => set({ orders: [] }),
+
+            clearTodayOrders: () => {
+                const today = new Date().toISOString().split('T')[0];
+                set((state) => ({
+                    orders: state.orders.filter(order => !order.date.startsWith(today))
+                }));
+            },
 
             getDailyRevenue: (dateString = new Date().toISOString().split('T')[0]) => {
                 const state = get();

@@ -16,6 +16,20 @@ export const useSales = () => {
         await db.orders.add(order as any);
     };
 
+    const clearHistory = async () => {
+        await db.orders.clear();
+    };
+
+    const clearTodayOrders = async () => {
+        const today = new Date().toISOString().split('T')[0];
+        // Find keys of orders from today
+        const ordersToDelete = await db.orders
+            .filter(order => order.orderDate.startsWith(today))
+            .primaryKeys();
+
+        await db.orders.bulkDelete(ordersToDelete);
+    };
+
     const getDailyRevenue = (dateString = new Date().toISOString().split('T')[0]) => {
         return orders
             .filter(order => order.orderDate.startsWith(dateString))
@@ -35,6 +49,8 @@ export const useSales = () => {
         addOrder,
         getDailyRevenue,
         getTotalRevenue,
-        getTotalOrders
+        getTotalOrders,
+        clearHistory,
+        clearTodayOrders
     };
 };

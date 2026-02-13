@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, AlertTriangle, Package, History, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, AlertTriangle, Package, History, CheckCircle, XCircle, Download, Upload } from 'lucide-react';
+import { exportToCSV } from '../utils/csvExport';
+import { parseCSV } from '../utils/csvImport';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { formatCurrency } from '../utils/format';
@@ -27,6 +29,74 @@ export const InventoryScreen: React.FC = () => {
     const handleViewHistory = (product: Product) => {
         setHistoryModalProduct(product);
         setIsHistoryModalOpen(true);
+    };
+
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleExport = () => {
+        const data = products.map(p => ({
+            Name: p.name,
+            SKU: p.sku,
+            Category: p.category?.name || '',
+            Brand: p.brand?.name || '',
+            Price: p.basePrice,
+            Stock: p.variants?.reduce((acc, v) => acc + v.stockQuantity, 0) || 0
+        }));
+        exportToCSV(data, `inventory-${new Date().toISOString().split('T')[0]}`);
+    };
+
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const text = event.target?.result as string;
+            if (text) {
+                try {
+                    const data = parseCSV(text);
+                    let addedCount = 0;
+
+                    // Basic validation and import
+                    // In a real app, strict validation is needed
+                    for (const row of data) {
+                        if (row.Name && row.Price) {
+                            // Minimal mapping for demo
+                            await addProduct({
+                                name: row.Name,
+                                sku: row.SKU || `SKU-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                                basePrice: parseFloat(row.Price) || 0,
+                                categoryId: 1, // Default to first category if not found
+                                brandId: 1,
+                                description: row.Description || '',
+                                imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff', // Placeholder
+                                variants: [
+                                    {
+                                        id: Date.now(),
+                                        sizeUk: 8,
+                                        color: 'Default',
+                                        stockQuantity: parseInt(row.Stock) || 0,
+                                        priceAdjustment: 0
+                                    }
+                                ]
+                            } as any);
+                            addedCount++;
+                        }
+                    }
+                    alert(`Successfully imported ${addedCount} products.`);
+                    // Reset input
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                } catch (error) {
+                    console.error('Import failed', error);
+                    alert('Failed to import products. Please check the CSV format.');
+                }
+            }
+        };
+        reader.readAsText(file);
     };
 
     const filteredProducts = products.filter(product => {
@@ -123,9 +193,19 @@ export const InventoryScreen: React.FC = () => {
                     <Button variant="outline" icon={Filter}>
                         Filter
                     </Button>
-                    <Button variant="outline" icon={Filter}>
+                    <Button variant="outline" icon={Upload} onClick={handleImportClick}>
+                        Import
+                    </Button>
+                    <Button variant="outline" icon={Download} onClick={handleExport}>
                         Export
                     </Button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept=".csv"
+                        className="hidden"
+                    />
                 </div>
             </div>
 

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { BarChart3, TrendingUp, ShoppingBag, CreditCard } from 'lucide-react';
+import { BarChart3, TrendingUp, ShoppingBag, CreditCard, Download, Printer, RotateCcw } from 'lucide-react';
+import { exportToCSV } from '../utils/csvExport';
 import { Card } from '../components/ui/Card';
 import { useSales } from '../hooks/useSales';
 import { formatCurrency } from '../utils/format';
 import { motion } from 'framer-motion';
 
 export const ReportsScreen: React.FC = () => {
-    const { orders } = useSales();
+    const { orders, clearTodayOrders } = useSales();
     const [dateFilter, setDateFilter] = useState('today');
 
     // Filter orders based on selected date range
@@ -52,32 +53,85 @@ export const ReportsScreen: React.FC = () => {
     // For simplicity, let's assume one payment method per order or take the first one.
 
     const paymentMethods = filteredOrders.reduce((acc, order) => {
-        // If there are no payments, mark as unknown
-        const method = order.payments?.[0]?.paymentMethod || 'unknown';
-        acc[method] = (acc[method] || 0) + order.totalAmount;
+        if (order.payments && order.payments.length > 0) {
+            order.payments.forEach(payment => {
+                const method = payment.paymentMethod || 'unknown';
+                acc[method] = (acc[method] || 0) + payment.amount;
+            });
+        } else {
+            // Fallback for old data without payments array
+            const method = 'unknown';
+            acc[method] = (acc[method] || 0) + order.totalAmount;
+        }
         return acc;
     }, {} as Record<string, number>);
 
+    const handleExport = () => {
+        const data = filteredOrders.map(order => ({
+            OrderNumber: order.orderNumber,
+            Date: new Date(order.orderDate).toLocaleDateString(),
+            Time: new Date(order.orderDate).toLocaleTimeString(),
+            Items: order.items.length,
+            Discount: order.discountAmount || 0,
+            Total: order.totalAmount,
+            PaymentMethod: order.payments?.[0]?.paymentMethod || 'unknown'
+        }));
+        exportToCSV(data, `sales-report-${dateFilter}-${new Date().toISOString().split('T')[0]}`);
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleResetToday = () => {
+        if (window.confirm('Are you sure you want to delete ALL sales records for TODAY? This action cannot be undone.')) {
+            clearTodayOrders();
+        }
+    };
+
     return (
-        <div className="p-8 h-full overflow-y-auto bg-gray-50">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-8 h-full overflow-y-auto bg-gray-50 print:p-0 print:bg-white">
+            <div className="flex justify-between items-center mb-8 print:hidden">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Sales Reports</h1>
                     <p className="text-gray-500">Overview of your store performance</p>
                 </div>
-                <div className="flex bg-white rounded-lg shadow-sm p-1 border border-gray-200">
-                    {['today', 'week', 'month'].map((filter) => (
-                        <button
-                            key={filter}
-                            onClick={() => setDateFilter(filter)}
-                            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${dateFilter === filter
-                                ? 'bg-primary-100 text-primary-700'
-                                : 'text-gray-500 hover:text-gray-900'
-                                }`}
-                        >
-                            {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                        </button>
-                    ))}
+                <div className="flex items-center space-x-3">
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+                    >
+                        <Download size={18} className="mr-2" />
+                        Export
+                    </button>
+                    <button
+                        onClick={handlePrint}
+                        className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+                    >
+                        <Printer size={18} className="mr-2" />
+                        Print
+                    </button>
+                    <button
+                        onClick={handleResetToday}
+                        className="flex items-center px-4 py-2 bg-white border border-error-200 rounded-lg text-error-600 hover:bg-error-50 hover:text-error-700 transition-colors shadow-sm"
+                    >
+                        <RotateCcw size={18} className="mr-2" />
+                        Reset Today
+                    </button>
+                    <div className="flex bg-white rounded-lg shadow-sm p-1 border border-gray-200">
+                        {['today', 'week', 'month'].map((filter) => (
+                            <button
+                                key={filter}
+                                onClick={() => setDateFilter(filter)}
+                                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${dateFilter === filter
+                                    ? 'bg-primary-100 text-primary-700'
+                                    : 'text-gray-500 hover:text-gray-900'
+                                    }`}
+                            >
+                                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 

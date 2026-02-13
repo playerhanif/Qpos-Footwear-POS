@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Grid, List as ListIcon, Trash2, Minus, Plus } from 'lucide-react';
+import { Search, Grid, List as ListIcon, Trash2, Minus, Plus, Tag, X } from 'lucide-react';
 import { CategoryTabs } from '../components/CategoryTabs';
 import { ProductGrid } from '../components/ProductGrid';
 import { ProductDetailModal } from '../components/ProductDetailModal';
@@ -20,13 +20,16 @@ export const BillingScreen: React.FC = () => {
     const { taxRate } = useSettingsStore();
     const { customers } = useCustomers();
     const { products } = useProducts();
-    const { items, removeFromCart, updateQuantity, getSubtotal, setCustomer, customerId } = useCartStore();
+    const { items, removeFromCart, updateQuantity, getSubtotal, setCustomer, customerId, discount, setDiscount, clearDiscount, getDiscountAmount } = useCartStore();
 
     // Local State
     const [activeCategoryId, setActiveCategoryId] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+    const [isDiscountOpen, setIsDiscountOpen] = useState(false);
+    const [discountInput, setDiscountInput] = useState('');
+    const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
 
     // Sync local selected customer with store
     const handleCustomerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -40,9 +43,20 @@ export const BillingScreen: React.FC = () => {
     }, [customerId, customers]);
 
     const subtotal = getSubtotal();
+    const discountAmount = getDiscountAmount();
+    const taxableAmount = subtotal - discountAmount;
     // taxRate is stored as decimal (e.g. 0.18 for 18%)
-    const taxAmount = subtotal * taxRate;
-    const totalAmount = subtotal + taxAmount;
+    const taxAmount = taxableAmount * taxRate;
+    const totalAmount = taxableAmount + taxAmount;
+
+    const handleApplyDiscount = () => {
+        const value = parseFloat(discountInput);
+        if (!isNaN(value) && value > 0) {
+            setDiscount(discountType, value);
+            setIsDiscountOpen(false);
+            setDiscountInput('');
+        }
+    };
 
     // Filter products based on category and search query
     const filteredProducts = useMemo(() => {
@@ -241,6 +255,64 @@ export const BillingScreen: React.FC = () => {
                             <span className="text-sm">Subtotal</span>
                             <span className="font-medium">{formatCurrency(subtotal)}</span>
                         </div>
+
+                        {/* Discount Section */}
+                        {discount ? (
+                            <div className="flex justify-between text-success-600">
+                                <span className="text-sm flex items-center">
+                                    Discount ({discount.type === 'percentage' ? `${discount.value}%` : 'Fixed'})
+                                    <button onClick={clearDiscount} className="ml-2 hover:text-error-600">
+                                        <X size={14} />
+                                    </button>
+                                </span>
+                                <span className="font-medium">-{formatCurrency(discountAmount)}</span>
+                            </div>
+                        ) : (
+                            <div>
+                                {isDiscountOpen ? (
+                                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-2">
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => setDiscountType('percentage')}
+                                                className={`flex-1 text-xs py-1 rounded ${discountType === 'percentage' ? 'bg-primary-100 text-primary-700 font-medium' : 'bg-white border border-gray-200 text-gray-600'}`}
+                                            >
+                                                Percentage (%)
+                                            </button>
+                                            <button
+                                                onClick={() => setDiscountType('fixed')}
+                                                className={`flex-1 text-xs py-1 rounded ${discountType === 'fixed' ? 'bg-primary-100 text-primary-700 font-medium' : 'bg-white border border-gray-200 text-gray-600'}`}
+                                            >
+                                                Fixed Amount
+                                            </button>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <input
+                                                type="number"
+                                                value={discountInput}
+                                                onChange={(e) => setDiscountInput(e.target.value)}
+                                                placeholder={discountType === 'percentage' ? "Ex: 10" : "Ex: 500"}
+                                                className="flex-1 text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-primary-500"
+                                            />
+                                            <button
+                                                onClick={handleApplyDiscount}
+                                                className="bg-primary-600 text-white text-xs px-3 py-1 rounded hover:bg-primary-700"
+                                            >
+                                                Apply
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => setIsDiscountOpen(true)}
+                                        className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center"
+                                    >
+                                        <Tag size={14} className="mr-1" />
+                                        Add Discount
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
                         <div className="flex justify-between text-gray-600">
                             <span className="text-sm">Tax ({(taxRate * 100).toFixed(0)}%)</span>
                             <span className="font-medium">{formatCurrency(taxAmount)}</span>

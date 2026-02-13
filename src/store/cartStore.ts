@@ -11,8 +11,14 @@ interface CartState {
     setCustomer: (customerId: number | undefined) => void;
     customerId?: number;
 
+    // Discount state
+    discount: { type: 'percentage' | 'fixed'; value: number } | null;
+    setDiscount: (type: 'percentage' | 'fixed', value: number) => void;
+    clearDiscount: () => void;
+
     // Computed values helpers
     getSubtotal: () => number;
+    getDiscountAmount: () => number;
     getTotalItems: () => number;
 }
 
@@ -21,8 +27,13 @@ export const useCartStore = create<CartState>()(
         (set, get) => ({
             items: [],
             customerId: undefined,
+            discount: null,
 
             setCustomer: (id) => set({ customerId: id }),
+
+            setDiscount: (type, value) => set({ discount: { type, value } }),
+
+            clearDiscount: () => set({ discount: null }),
 
             addToCart: (product, variant, quantity) => {
                 set((state) => {
@@ -89,10 +100,23 @@ export const useCartStore = create<CartState>()(
                 });
             },
 
-            clearCart: () => set({ items: [] }),
+            clearCart: () => set({ items: [], discount: null, customerId: undefined }),
 
             getSubtotal: () => {
                 return get().items.reduce((total, item) => total + item.totalPrice, 0);
+            },
+
+            getDiscountAmount: () => {
+                const state = get();
+                const subtotal = state.items.reduce((total, item) => total + item.totalPrice, 0);
+
+                if (!state.discount) return 0;
+
+                if (state.discount.type === 'percentage') {
+                    return subtotal * (state.discount.value / 100);
+                } else {
+                    return Math.min(state.discount.value, subtotal); // Cannot exceed subtotal
+                }
             },
 
             getTotalItems: () => {
