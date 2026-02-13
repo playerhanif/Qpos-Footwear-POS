@@ -37,8 +37,8 @@ export const exportToCSV = (data: any[], filename: string) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
 
-    if (navigator.msSaveBlob) { // IE 10+
-        navigator.msSaveBlob(blob, `${filename}.csv`);
+    if ((navigator as any).msSaveBlob) { // IE 10+
+        (navigator as any).msSaveBlob(blob, `${filename}.csv`);
     } else {
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
