@@ -131,7 +131,7 @@ export const PaymentScreen: React.FC = () => {
         let payments: Payment[] = [];
 
         if (selectedMethod === 'split') {
-            payments = splitPayments.map((sp, index) => ({
+            payments = splitPayments.map((sp) => ({
                 id: 0,
                 orderId: 0,
                 paymentMethod: sp.method,
@@ -187,8 +187,7 @@ export const PaymentScreen: React.FC = () => {
                 <Receipt
                     ref={receiptRef}
                     orderId={orderId}
-                    ref={receiptRef}
-                    orderId={orderId}
+
                     items={items}
                     subtotal={subtotal}
                     discountAmount={discountAmount}
