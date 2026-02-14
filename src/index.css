@@ -196,8 +196,8 @@
 
 @media print {
   @page {
-    margin: 1cm;
-    size: landscape;
+    margin: 0;
+    size: auto;
   }
 
   body {
