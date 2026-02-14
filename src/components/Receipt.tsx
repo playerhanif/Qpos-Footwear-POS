@@ -33,19 +33,31 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
     const { storeName, storeAddress, storePhone } = useSettingsStore();
 
     return (
-        <div ref={ref} className="bg-white text-black font-mono text-[12px] leading-tight w-[58mm] mx-auto print:w-full print:m-0">
+        <div ref={ref} className="bg-white text-black font-mono text-[10px] leading-tight w-[58mm] mx-auto print:w-full print:m-0">
             {/* CRITICAL: This style tag ensures the browser doesn't add 
                 default margins (0.5 inch) which ruins 58mm printing. 
             */}
             <style type="text/css" media="print">
                 {`
-                    @page { size: 58mm auto; margin: 0; }
-                    body { margin: 0; padding: 0; }
+                    @page { size: 58mm auto; margin: 0mm; }
+                    body { margin: 0; padding: 0; width: 58mm; }
+                    
+                    /* Enhance print layout */
+                    @media print {
+                        body { 
+                            -webkit-print-color-adjust: exact; 
+                            width: 58mm;
+                        }
+                        .print-container {
+                            width: 100%;
+                            page-break-inside: avoid;
+                        }
+                    }
                 `}
             </style>
 
             {/* Container with minimal padding to maximize print area */}
-            <div className="p-1">
+            <div className="print-container p-1 w-full max-w-[58mm] bg-white">
 
                 {/* Header */}
                 <div className="text-center mb-2">
@@ -54,7 +66,7 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({
                     <p className="text-[10px]">Tel: {storePhone}</p>
                 </div>
 
-                {/* Divider (Using CSS border is cleaner than ASCII for thermal if driver supports it, else use strings) */}
+                {/* Divider */}
                 <div className="border-b border-black border-dashed my-1" />
 
                 {/* Order Info */}

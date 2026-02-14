@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Grid, List as ListIcon, Trash2, Minus, Plus, Tag, X } from 'lucide-react';
+import { Search, Grid, List as ListIcon, Trash2, Minus, Plus, Tag, X, Ticket } from 'lucide-react';
 import { CategoryTabs } from '../components/CategoryTabs';
 import { ProductGrid } from '../components/ProductGrid';
 import { ProductDetailModal } from '../components/ProductDetailModal';
@@ -20,7 +20,7 @@ export const BillingScreen: React.FC = () => {
     const { taxRate } = useSettingsStore();
     const { customers } = useCustomers();
     const { products } = useProducts();
-    const { items, removeFromCart, updateQuantity, getSubtotal, setCustomer, customerId, discount, setDiscount, clearDiscount, getDiscountAmount } = useCartStore();
+    const { items, removeFromCart, updateQuantity, getSubtotal, setCustomer, customerId, discount, setDiscount, clearDiscount, getDiscountAmount, applyCoupon, couponCode } = useCartStore();
 
     // Local State
     const [activeCategoryId, setActiveCategoryId] = useState<number>(1);
@@ -30,6 +30,10 @@ export const BillingScreen: React.FC = () => {
     const [isDiscountOpen, setIsDiscountOpen] = useState(false);
     const [discountInput, setDiscountInput] = useState('');
     const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
+
+    // Coupon State
+    const [isCouponOpen, setIsCouponOpen] = useState(false);
+    const [couponInput, setCouponInput] = useState('');
 
     // Sync local selected customer with store
     const handleCustomerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -55,6 +59,20 @@ export const BillingScreen: React.FC = () => {
             setDiscount(discountType, value);
             setIsDiscountOpen(false);
             setDiscountInput('');
+            setIsCouponOpen(false); // Close coupon if discount applied manually
+        }
+    };
+
+    const handleApplyCoupon = () => {
+        if (!couponInput.trim()) return;
+
+        const success = applyCoupon(couponInput);
+        if (success) {
+            setIsCouponOpen(false);
+            setCouponInput('');
+            setIsDiscountOpen(false); // Close manual discount if coupon applied
+        } else {
+            alert('Invalid coupon code');
         }
     };
 
@@ -312,6 +330,53 @@ export const BillingScreen: React.FC = () => {
                                 )}
                             </div>
                         )}
+
+                        {/* Coupon Section - Only show if no manual discount or if it's a coupon discount */}
+                        {!discount || (discount && couponCode) ? (
+                            <div>
+                                {couponCode ? (
+                                    <div className="flex justify-between text-blue-600">
+                                        <span className="text-sm flex items-center">
+                                            <Ticket size={14} className="mr-1" />
+                                            Coupon: {couponCode}
+                                            <button onClick={clearDiscount} className="ml-2 hover:text-error-600">
+                                                <X size={14} />
+                                            </button>
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className="mt-2">
+                                        {isCouponOpen ? (
+                                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 mt-2 space-y-2">
+                                                <div className="flex space-x-2">
+                                                    <input
+                                                        type="text"
+                                                        value={couponInput}
+                                                        onChange={(e) => setCouponInput(e.target.value)}
+                                                        placeholder="Enter Coupon Code"
+                                                        className="flex-1 text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-primary-500 uppercase"
+                                                    />
+                                                    <button
+                                                        onClick={handleApplyCoupon}
+                                                        className="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700"
+                                                    >
+                                                        Apply
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => setIsCouponOpen(true)}
+                                                className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center mt-2"
+                                            >
+                                                <Ticket size={14} className="mr-1" />
+                                                Have a Coupon?
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ) : null}
 
                         <div className="flex justify-between text-gray-600">
                             <span className="text-sm">Tax ({(taxRate * 100).toFixed(0)}%)</span>

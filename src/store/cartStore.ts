@@ -11,9 +11,11 @@ interface CartState {
     setCustomer: (customerId: number | undefined) => void;
     customerId?: number;
 
-    // Discount state
+    // Discount & Coupon state
     discount: { type: 'percentage' | 'fixed'; value: number } | null;
+    couponCode: string | null;
     setDiscount: (type: 'percentage' | 'fixed', value: number) => void;
+    applyCoupon: (code: string) => boolean;
     clearDiscount: () => void;
 
     // Computed values helpers
@@ -28,12 +30,35 @@ export const useCartStore = create<CartState>()(
             items: [],
             customerId: undefined,
             discount: null,
+            couponCode: null,
 
             setCustomer: (id) => set({ customerId: id }),
 
-            setDiscount: (type, value) => set({ discount: { type, value } }),
+            setDiscount: (type, value) => set({ discount: { type, value }, couponCode: null }), // Manual discount clears coupon
 
-            clearDiscount: () => set({ discount: null }),
+            applyCoupon: (code) => {
+                const upperCode = code.toUpperCase();
+                let discount: { type: 'percentage' | 'fixed'; value: number } | null = null;
+
+                // Mock Coupon Logic
+                if (upperCode === 'SAVE10') {
+                    discount = { type: 'percentage', value: 10 };
+                } else if (upperCode === 'LOYALTY20') {
+                    discount = { type: 'percentage', value: 20 };
+                } else if (upperCode === 'FLAT500') {
+                    discount = { type: 'fixed', value: 500 };
+                } else if (upperCode === 'WELCOME50') {
+                    discount = { type: 'percentage', value: 50 };
+                }
+
+                if (discount) {
+                    set({ discount, couponCode: upperCode });
+                    return true;
+                }
+                return false;
+            },
+
+            clearDiscount: () => set({ discount: null, couponCode: null }),
 
             addToCart: (product, variant, quantity) => {
                 set((state) => {
@@ -100,7 +125,7 @@ export const useCartStore = create<CartState>()(
                 });
             },
 
-            clearCart: () => set({ items: [], discount: null, customerId: undefined }),
+            clearCart: () => set({ items: [], discount: null, couponCode: null, customerId: undefined }),
 
             getSubtotal: () => {
                 return get().items.reduce((total, item) => total + item.totalPrice, 0);

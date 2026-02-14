@@ -74,7 +74,7 @@ export const ReportsScreen: React.FC = () => {
             Items: order.items.length,
             Discount: order.discountAmount || 0,
             Total: order.totalAmount,
-            PaymentMethod: order.payments?.[0]?.paymentMethod || 'unknown'
+            PaymentMethod: order.payments?.map(p => p.paymentMethod).join(', ') || 'unknown'
         }));
         exportToCSV(data, `sales-report-${dateFilter}-${new Date().toISOString().split('T')[0]}`);
     };
@@ -209,7 +209,7 @@ export const ReportsScreen: React.FC = () => {
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-600 capitalize">
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                        {order.payments?.[0]?.paymentMethod || 'unknown'}
+                                                        {order.payments?.map(p => p.paymentMethod).join(', ') || 'unknown'}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm font-bold text-gray-900 text-right">

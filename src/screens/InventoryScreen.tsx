@@ -40,7 +40,8 @@ export const InventoryScreen: React.FC = () => {
             Category: p.category?.name || '',
             Brand: p.brand?.name || '',
             Price: p.basePrice,
-            Stock: p.variants?.reduce((acc, v) => acc + v.stockQuantity, 0) || 0
+            Stock: p.variants?.reduce((acc, v) => acc + v.stockQuantity, 0) || 0,
+            ImageUrl: p.imageUrl || ''
         }));
         exportToCSV(data, `inventory-${new Date().toISOString().split('T')[0]}`);
     };
